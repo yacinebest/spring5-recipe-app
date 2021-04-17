@@ -4,7 +4,9 @@ import guru.springframework.spring5recipeapp.commands.RecipeCommand;
 import guru.springframework.spring5recipeapp.converters.RecipeCommandToRecipe;
 import guru.springframework.spring5recipeapp.converters.RecipeToRecipeCommand;
 import guru.springframework.spring5recipeapp.domain.Recipe;
+import guru.springframework.spring5recipeapp.exceptions.NotFoundException;
 import guru.springframework.spring5recipeapp.repositories.RecipeRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,6 +52,28 @@ class RecipeServiceImplTest {
         assertNotNull("Null recipe returned", recipeReturned);
         verify(recipeRepository, times(1)).findById(anyLong());
         verify(recipeRepository, never()).findAll();
+    }
+
+
+    @Test
+    public void getRecipeByIdTestNotFound() throws Exception {
+
+        Assertions.assertThrows(NotFoundException.class, ()->{
+            Optional<Recipe> recipeOptional = Optional.empty();
+
+            when(recipeRepository.findById(anyLong())).thenReturn(recipeOptional);
+
+            Recipe recipeReturned = recipeService.findById(1L);
+
+            //should go boom
+        });
+    }
+
+    @Test
+    public void getRecipeById_throws_NumberFormatException_when_id_is_not_a_number() throws Exception{
+        Assertions.assertThrows(NumberFormatException.class, ()->{
+            recipeService.findById(Long.valueOf("asd"));
+        });
     }
 
     @Test
